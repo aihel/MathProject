@@ -1,0 +1,39 @@
+<svg width="140" height="600" viewBox="0 0 140 600" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <filter id="neonGlow2" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="pipeGradient2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#5a00a8"/>
+      <stop offset="50%" stop-color="#c800ff"/>
+      <stop offset="100%" stop-color="#3b0066"/>
+    </linearGradient>
+
+    <linearGradient id="capGradient2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#c800ff"/>
+      <stop offset="50%" stop-color="#ff6bff"/>
+      <stop offset="100%" stop-color="#8a00d4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Gövde -->
+  <rect x="30" y="0" width="80" height="600"
+        fill="url(#pipeGradient2)"
+        filter="url(#neonGlow2)"/>
+
+  <!-- İç Parlaklık -->
+  <rect x="90" y="0" width="10" height="600"
+        fill="rgba(255,255,255,0.25)"/>
+
+  <!-- Kapak (Alt Taraf) -->
+  <rect x="0" y="540" width="140" height="60" rx="10"
+        fill="url(#capGradient2)"
+        filter="url(#neonGlow2)"/>
+
+</svg>
