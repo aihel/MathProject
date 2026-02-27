@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SansiAsaf ProjectMath</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    overflow:hidden;
+    background:black;
+    font-family:Arial;
+}
+
+#bgVideo{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:-3;
+}
+
+#shader{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at center, rgba(200,0,255,0.15), transparent 70%),
+        linear-gradient(to top, rgba(0,0,0,0.6), transparent 60%);
+}
+
+canvas{
+    display:block;
+}
+
+#intro{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:40px;
+    font-weight:bold;
+    color:#c800ff;
+    text-shadow:0 0 25px #c800ff;
+    background:black;
+    z-index:10;
+}
+</style>
+</head>
+<body>
+
+<video id="bgVideo" autoplay muted loop playsinline>
+    <source src="smol-stelle-honkai-star-rail.1920x1080.mp4" type="video/mp4">
+</video>
+
+<audio id="bgMusic" loop>
+    <source src="88.m4a" type="audio/mp4">
+</audio>
+
+<div id="shader"></div>
+<div id="intro">Tarafından Gelistirildi</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+/* 🐤 KUŞ SPRITELER */
+const birdStraight = new Image();
+birdStraight.src = "1.png";
+
+const birdUp = new Image();
+birdUp.src = "2.png";
+
+const birdDown = new Image();
+birdDown.src = "3.png";
+
+let currentBirdImage = birdStraight;
+
+/* 🟣 PIPE SVG */
+const pipeImg = new Image();
+pipeImg.src = "pipe.svg";
+
+const pipeTopImg = new Image();
+pipeTopImg.src = "pipe1.svg";
+
+let gameStarted = false;
+let gameOver = false;
+
+let bird = {
+    x: 200,
+    y: canvas.height/2,
+    size: 50,
+    gravity: 0.6,
+    lift: -10,
+    velocity: 0
+};
+
+let pipes = [];
+let pipeWidth = 140;
+let pipeGap = 230;
+let frameCount = 0;
+
+/* 🎮 GAME LOOP */
+function gameLoop(){
+
+    if(!gameStarted){
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    if(!gameOver){
+        updateBird();
+        updatePipes();
+    }
+
+    drawBird();
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* 🐤 KUŞ */
+function updateBird(){
+    bird.velocity += bird.gravity;
+    bird.y += bird.velocity;
+
+    if(bird.y <= 0 || bird.y + bird.size >= canvas.height){
+        gameOver = true;
+    }
+}
+
+function drawBird(){
+
+    if(bird.velocity < -2){
+        currentBirdImage = birdUp;
+    } else if(bird.velocity > 2){
+        currentBirdImage = birdDown;
+    } else{
+        currentBirdImage = birdStraight;
+    }
+
+    ctx.drawImage(
+        currentBirdImage,
+        bird.x - bird.size/2,
+        bird.y - bird.size/2,
+        bird.size,
+        bird.size
+    );
+}
+
+/* 🟣 PIPE */
+function updatePipes(){
+
+    frameCount++;
+
+    if(frameCount % 120 === 0){
+        let topHeight = Math.random()*300 + 100;
+
+        pipes.push({
+            x: canvas.width,
+            top: topHeight,
+            bottom: canvas.height - topHeight - pipeGap
+        });
+    }
+
+    for(let i=0;i<pipes.length;i++){
+        let p = pipes[i];
+        p.x -= 4;
+
+        // Üst
+        ctx.drawImage(pipeTopImg, p.x, 0, pipeWidth, p.top);
+
+        // Alt
+        ctx.drawImage(
+            pipeImg,
+            p.x,
+            canvas.height - p.bottom,
+            pipeWidth,
+            p.bottom
+        );
+
+        // Collision
+        if(
+            bird.x + bird.size/2 > p.x &&
+            bird.x - bird.size/2 < p.x + pipeWidth &&
+            (bird.y - bird.size/2 < p.top ||
+             bird.y + bird.size/2 > canvas.height - p.bottom)
+        ){
+            gameOver = true;
+        }
+
+        if(p.x + pipeWidth < 0){
+            pipes.splice(i,1);
+            i--;
+        }
+    }
+}
+
+/* ⌨ Zıplama */
+document.addEventListener("keydown",()=>{
+    if(!gameStarted) return;
+    bird.velocity = bird.lift;
+});
+
+document.addEventListener("click",()=>{
+    if(!gameStarted) return;
+    bird.velocity = bird.lift;
+});
+
+/* 🎬 INTRO 6 SN */
+setTimeout(()=>{
+    document.getElementById("intro").style.display="none";
+    gameStarted = true;
+
+    // 🎵 Müzik başlat
+    document.body.addEventListener("click",()=>{
+        document.getElementById("bgMusic").play();
+    },{once:true});
+
+},6000);
+
+gameLoop();
+</script>
+
+</body>
+</html>
